@@ -21,25 +21,25 @@ theme_set(theme_cowplot())
 
 ```{r Load in data}
 ## EDP Acute
-# load(file = "C:/Users/AndyPC/Documents/School/6 Master Biomedical Sciences Neuroscience/Research Project 2/Lumicycle data all mice/Data before QC/EPD_acute_lung_oscillations.Rdata")
+# load(file = "EPD_acute_lung_oscillations.Rdata")
 # 
 # ## EDP Chronic
-# load(file = "C:/Users/AndyPC/Documents/School/6 Master Biomedical Sciences Neuroscience/Research Project 2/Lumicycle data all mice/Data before QC/EDP_chronic_lung_oscillations.Rdata")
+# load(file = "EDP_chronic_lung_oscillations.Rdata")
 # 
 # ## LDP Acute
-# load(file = "C:/Users/AndyPC/Documents/School/6 Master Biomedical Sciences Neuroscience/Research Project 2/Lumicycle data all mice/Data before QC/LDP_acute_lung_oscillations.Rdata")
+# load(file = "LDP_acute_lung_oscillations.Rdata")
 # 
 # ##LDP Chronic
-# load(file = "C:/Users/AndyPC/Documents/School/6 Master Biomedical Sciences Neuroscience/Research Project 2/Lumicycle data all mice/Data before QC/LDP_chronic_lung_oscillations.Rdata")
+# load(file = "LDP_chronic_lung_oscillations.Rdata")
 #--------------------------------------------------------------------------------------------------------------------------------------
 
-load(file = "C:/Users/AndyPC/Documents/School/6 Master Biomedical Sciences Neuroscience/Research Project 2/Lumicycle data all mice/Data after QC/EDP_acute_normalized_oscillations.Rdata")
+load(file = "EDP_acute_normalized_oscillations.Rdata")
 
-load(file = "C:/Users/AndyPC/Documents/School/6 Master Biomedical Sciences Neuroscience/Research Project 2/Lumicycle data all mice/Data after QC/EDP_chronic_normalized_oscillations.Rdata")
+load(file = "EDP_chronic_normalized_oscillations.Rdata")
 
-load(file = "C:/Users/AndyPC/Documents/School/6 Master Biomedical Sciences Neuroscience/Research Project 2/Lumicycle data all mice/Data after QC/LDP_acute_normalized_oscillations.Rdata")
+load(file = "LDP_acute_normalized_oscillations.Rdata")
 
-load(file = "C:/Users/AndyPC/Documents/School/6 Master Biomedical Sciences Neuroscience/Research Project 2/Lumicycle data all mice/Data after QC/LDP_chronic_normalized_oscillations.Rdata")
+load(file = "LDP_chronic_normalized_oscillations.Rdata")
 
 
 ```

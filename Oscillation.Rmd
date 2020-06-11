@@ -1,0 +1,1015 @@
+---
+title: "Oscillations"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r Load packages}
+require(ggplot2)
+require(ggrepel)
+require(dplyr)
+require(gridExtra)
+require(ggnewscale)
+require(reshape2)
+require(cowplot)
+theme_set(theme_cowplot())
+```
+
+
+```{r Load in data}
+## EDP Acute
+# load(file = "C:/Users/AndyPC/Documents/School/6 Master Biomedical Sciences Neuroscience/Research Project 2/Lumicycle data all mice/Data before QC/EPD_acute_lung_oscillations.Rdata")
+# 
+# ## EDP Chronic
+# load(file = "C:/Users/AndyPC/Documents/School/6 Master Biomedical Sciences Neuroscience/Research Project 2/Lumicycle data all mice/Data before QC/EDP_chronic_lung_oscillations.Rdata")
+# 
+# ## LDP Acute
+# load(file = "C:/Users/AndyPC/Documents/School/6 Master Biomedical Sciences Neuroscience/Research Project 2/Lumicycle data all mice/Data before QC/LDP_acute_lung_oscillations.Rdata")
+# 
+# ##LDP Chronic
+# load(file = "C:/Users/AndyPC/Documents/School/6 Master Biomedical Sciences Neuroscience/Research Project 2/Lumicycle data all mice/Data before QC/LDP_chronic_lung_oscillations.Rdata")
+#--------------------------------------------------------------------------------------------------------------------------------------
+
+load(file = "C:/Users/AndyPC/Documents/School/6 Master Biomedical Sciences Neuroscience/Research Project 2/Lumicycle data all mice/Data after QC/EDP_acute_normalized_oscillations.Rdata")
+
+load(file = "C:/Users/AndyPC/Documents/School/6 Master Biomedical Sciences Neuroscience/Research Project 2/Lumicycle data all mice/Data after QC/EDP_chronic_normalized_oscillations.Rdata")
+
+load(file = "C:/Users/AndyPC/Documents/School/6 Master Biomedical Sciences Neuroscience/Research Project 2/Lumicycle data all mice/Data after QC/LDP_acute_normalized_oscillations.Rdata")
+
+load(file = "C:/Users/AndyPC/Documents/School/6 Master Biomedical Sciences Neuroscience/Research Project 2/Lumicycle data all mice/Data after QC/LDP_chronic_normalized_oscillations.Rdata")
+
+
+```
+
+```{r Graph colours}
+# colours <- c("EDP Acute (Control)"   = "deepskyblue1",
+#              "EDP Acute (Stress)"    = "deepskyblue4",
+#              "EDP Chronic (Control)" = "firebrick1",
+#              "EDP Chronic (Stress)"  = "firebrick4",
+#              "LDP Acute (Control)"   = "deepskyblue1",
+#              "LDP Acute (Stress)"    = "deepskyblue4",
+#              "LDP Chronic (Control)" = "firebrick1",
+#              "LDP Chronic (Stress)"  = "firebrick4")
+
+#--------------------------------------------------------------------------------------------------------------------------------#
+############################################# lung #############################################
+colour.lung.EDP.AC <- scales::seq_gradient_pal("powderblue", "dodgerblue4", "Lab")(seq(0, 1, length.out = length(EDP.acute.lung.df[, 2:(ncol(EDP.acute.lung.df)-2)])))
+
+colour.lung.EDP.AS <- scales::seq_gradient_pal("coral1", "red4", "Lab")(seq(0, 1, length.out = length(EDP.acute.lungstress.df[, 2:(ncol(EDP.acute.lungstress.df)-2)])))
+
+colour.lung.EDP.CC <- scales::seq_gradient_pal("powderblue", "dodgerblue4", "Lab")(seq(0, 1, length.out = length(EDP.chronic.lung.df[, 2:(ncol(EDP.chronic.lung.df)-2)])))
+
+colour.lung.EDP.CS <- scales::seq_gradient_pal("coral1", "red4", "Lab")(seq(0, 1, length.out = length(EDP.chronic.lungstress.df[, 2:(ncol(EDP.chronic.lungstress.df)-2)])))
+
+
+colour.lung.LDP.AC <- scales::seq_gradient_pal("powderblue", "dodgerblue4", "Lab")(seq(0, 1, length.out = length(LDP.acute.lung.df[, 2:(ncol(LDP.acute.lung.df)-2)])))
+
+colour.lung.LDP.AS <- scales::seq_gradient_pal("coral1", "red4", "Lab")(seq(0, 1, length.out = length(LDP.acute.lungstress.df[, 2:(ncol(LDP.acute.lungstress.df)-2)])))
+
+colour.lung.LDP.CC <- scales::seq_gradient_pal("powderblue", "dodgerblue4", "Lab")(seq(0, 1, length.out = length(LDP.chronic.lung.df[, 2:(ncol(LDP.chronic.lung.df)-2)])))
+
+colour.lung.LDP.CS <- scales::seq_gradient_pal("coral1", "red4", "Lab")(seq(0, 1, length.out = length(LDP.chronic.lungstress.df[, 2:(ncol(LDP.chronic.lungstress.df)-2)])))
+
+############################################# spleen #############################################
+colour.spleen.EDP.AC <- scales::seq_gradient_pal("powderblue", "dodgerblue4", "Lab")(seq(0, 1, length.out = length(EDP.acute.spleen.df[, 2:(ncol(EDP.acute.spleen.df)-2)])))
+
+colour.spleen.EDP.AS <- scales::seq_gradient_pal("coral1", "red4", "Lab")(seq(0, 1, length.out = length(EDP.acute.spleenstress.df[, 2:(ncol(EDP.acute.spleenstress.df)-2)])))
+
+colour.spleen.EDP.CC <- scales::seq_gradient_pal("powderblue", "dodgerblue4", "Lab")(seq(0, 1, length.out = length(EDP.chronic.spleen.df[, 2:(ncol(EDP.chronic.spleen.df)-2)])))
+
+colour.spleen.EDP.CS <- scales::seq_gradient_pal("coral1", "red4", "Lab")(seq(0, 1, length.out = length(EDP.chronic.spleenstress.df[, 2:(ncol(EDP.chronic.spleenstress.df)-2)])))
+
+
+colour.spleen.LDP.AC <- scales::seq_gradient_pal("powderblue", "dodgerblue4", "Lab")(seq(0, 1, length.out = length(LDP.acute.spleen.df[, 2:(ncol(LDP.acute.spleen.df)-2)])))
+
+colour.spleen.LDP.AS <- scales::seq_gradient_pal("coral1", "red4", "Lab")(seq(0, 1, length.out = length(LDP.acute.spleenstress.df[, 2:(ncol(LDP.acute.spleenstress.df)-2)])))
+
+colour.spleen.LDP.CC <- scales::seq_gradient_pal("powderblue", "dodgerblue4", "Lab")(seq(0, 1, length.out = length(LDP.chronic.spleen.df[, 2:(ncol(LDP.chronic.spleen.df)-2)])))
+
+colour.spleen.LDP.CS <- scales::seq_gradient_pal("coral1", "red4", "Lab")(seq(0, 1, length.out = length(LDP.chronic.spleenstress.df[, 2:(ncol(LDP.chronic.spleenstress.df)-2)])))
+
+############################################# kidneycortex #############################################
+colour.kidneycortex.EDP.AC <- scales::seq_gradient_pal("powderblue", "dodgerblue4", "Lab")(seq(0, 1, length.out = length(EDP.acute.kidneycortex.df[, 2:(ncol(EDP.acute.kidneycortex.df)-2)])))
+
+colour.kidneycortex.EDP.AS <- scales::seq_gradient_pal("coral1", "red4", "Lab")(seq(0, 1, length.out = length(EDP.acute.kidneycortexstress.df[, 2:(ncol(EDP.acute.kidneycortexstress.df)-2)])))
+
+colour.kidneycortex.EDP.CC <- scales::seq_gradient_pal("powderblue", "dodgerblue4", "Lab")(seq(0, 1, length.out = length(EDP.chronic.kidneycortex.df[, 2:(ncol(EDP.chronic.kidneycortex.df)-2)])))
+
+colour.kidneycortex.EDP.CS <- scales::seq_gradient_pal("coral1", "red4", "Lab")(seq(0, 1, length.out = length(EDP.chronic.kidneycortexstress.df[, 2:(ncol(EDP.chronic.kidneycortexstress.df)-2)])))
+
+
+colour.kidneycortex.LDP.AC <- scales::seq_gradient_pal("powderblue", "dodgerblue4", "Lab")(seq(0, 1, length.out = length(LDP.acute.kidneycortex.df[, 2:(ncol(LDP.acute.kidneycortex.df)-2)])))
+
+colour.kidneycortex.LDP.AS <- scales::seq_gradient_pal("coral1", "red4", "Lab")(seq(0, 1, length.out = length(LDP.acute.kidneycortexstress.df[, 2:(ncol(LDP.acute.kidneycortexstress.df)-2)])))
+
+colour.kidneycortex.LDP.CC <- scales::seq_gradient_pal("powderblue", "dodgerblue4", "Lab")(seq(0, 1, length.out = length(LDP.chronic.kidneycortex.df[, 2:(ncol(LDP.chronic.kidneycortex.df)-2)])))
+
+colour.kidneycortex.LDP.CS <- scales::seq_gradient_pal("coral1", "red4", "Lab")(seq(0, 1, length.out = length(LDP.chronic.kidneycortexstress.df[, 2:(ncol(LDP.chronic.kidneycortexstress.df)-2)])))
+
+############################################# kidneymedulla #############################################
+colour.kidneymedulla.EDP.AC <- scales::seq_gradient_pal("powderblue", "dodgerblue4", "Lab")(seq(0, 1, length.out = length(EDP.acute.kidneymedulla.df[, 2:(ncol(EDP.acute.kidneymedulla.df)-2)])))
+
+colour.kidneymedulla.EDP.AS <- scales::seq_gradient_pal("coral1", "red4", "Lab")(seq(0, 1, length.out = length(EDP.acute.kidneymedullastress.df[, 2:(ncol(EDP.acute.kidneymedullastress.df)-2)])))
+
+colour.kidneymedulla.EDP.CC <- scales::seq_gradient_pal("powderblue", "dodgerblue4", "Lab")(seq(0, 1, length.out = length(EDP.chronic.kidneymedulla.df[, 2:(ncol(EDP.chronic.kidneymedulla.df)-2)])))
+
+colour.kidneymedulla.EDP.CS <- scales::seq_gradient_pal("coral1", "red4", "Lab")(seq(0, 1, length.out = length(EDP.chronic.kidneymedullastress.df[, 2:(ncol(EDP.chronic.kidneymedullastress.df)-2)])))
+
+
+colour.kidneymedulla.LDP.AC <- scales::seq_gradient_pal("powderblue", "dodgerblue4", "Lab")(seq(0, 1, length.out = length(LDP.acute.kidneymedulla.df[, 2:(ncol(LDP.acute.kidneymedulla.df)-2)])))
+
+colour.kidneymedulla.LDP.AS <- scales::seq_gradient_pal("coral1", "red4", "Lab")(seq(0, 1, length.out = length(LDP.acute.kidneymedullastress.df[, 2:(ncol(LDP.acute.kidneymedullastress.df)-2)])))
+
+colour.kidneymedulla.LDP.CC <- scales::seq_gradient_pal("powderblue", "dodgerblue4", "Lab")(seq(0, 1, length.out = length(LDP.chronic.kidneymedulla.df[, 2:(ncol(LDP.chronic.kidneymedulla.df)-2)])))
+
+colour.kidneymedulla.LDP.CS <- scales::seq_gradient_pal("coral1", "red4", "Lab")(seq(0, 1, length.out = length(LDP.chronic.kidneymedullastress.df[, 2:(ncol(LDP.chronic.kidneymedullastress.df)-2)])))
+```
+
+```{r Edit the data to make graphs}
+############################################# lung #############################################
+EDP.acute.lung.df <- select(EDP.acute.lung.df, -c(OVERALL_MEAN, OVERALL_SEM)) %>% 
+  melt(id.vars = "RM24hour.lung.ctrl$Timepoints", variable.name = "Samples", na.rm = T)
+EDP.acute.lungstress.df <- select(EDP.acute.lungstress.df, -c(OVERALL_MEAN, OVERALL_SEM)) %>% 
+  melt(id.vars = "RM24hour.lung.stress$Timepoints", variable.name = "Samples", na.rm = T)
+
+EDP.chronic.lung.df <- select(EDP.chronic.lung.df, -c(OVERALL_MEAN, OVERALL_SEM)) %>% 
+  melt(id.vars = "RM24hour.lung.ctrl$Timepoints", variable.name = "Samples", na.rm = T)
+EDP.chronic.lungstress.df <- select(EDP.chronic.lungstress.df, -c(OVERALL_MEAN, OVERALL_SEM)) %>% 
+  melt(id.vars = "RM24hour.lung.stress$Timepoints", variable.name = "Samples", na.rm = T)
+
+
+LDP.acute.lung.df <- select(LDP.acute.lung.df, -c(OVERALL_MEAN, OVERALL_SEM)) %>% 
+  melt(id.vars = "RM24hour.lung.ctrl$Timepoints", variable.name = "Samples", na.rm = T)
+LDP.acute.lungstress.df <- select(LDP.acute.lungstress.df, -c(OVERALL_MEAN, OVERALL_SEM)) %>% 
+  melt(id.vars = "RM24hour.lung.stress$Timepoints", variable.name = "Samples", na.rm = T)
+
+LDP.chronic.lung.df <- select(LDP.chronic.lung.df, -c(OVERALL_MEAN, OVERALL_SEM)) %>% 
+  melt(id.vars = "RM24hour.lung.ctrl$Timepoints", variable.name = "Samples", na.rm = T)
+LDP.chronic.lungstress.df <- select(LDP.chronic.lungstress.df, -c(OVERALL_MEAN, OVERALL_SEM)) %>% 
+  melt(id.vars = "RM24hour.lung.stress$Timepoints", variable.name = "Samples", na.rm = T)
+
+
+
+############################################# spleen #############################################
+EDP.acute.spleen.df <- select(EDP.acute.spleen.df, -c(OVERALL_MEAN, OVERALL_SEM)) %>% 
+  melt(id.vars = "RM24hour.spleen.ctrl$Timepoints", variable.name = "Samples", na.rm = T)
+EDP.acute.spleenstress.df <- select(EDP.acute.spleenstress.df, -c(OVERALL_MEAN, OVERALL_SEM)) %>% 
+  melt(id.vars = "RM24hour.spleen.stress$Timepoints", variable.name = "Samples", na.rm = T)
+
+EDP.chronic.spleen.df <- select(EDP.chronic.spleen.df, -c(OVERALL_MEAN, OVERALL_SEM)) %>% 
+  melt(id.vars = "RM24hour.spleen.ctrl$Timepoints", variable.name = "Samples", na.rm = T)
+EDP.chronic.spleenstress.df <- select(EDP.chronic.spleenstress.df, -c(OVERALL_MEAN, OVERALL_SEM)) %>% 
+  melt(id.vars = "RM24hour.spleen.stress$Timepoints", variable.name = "Samples", na.rm = T)
+
+
+LDP.acute.spleen.df <- select(LDP.acute.spleen.df, -c(OVERALL_MEAN, OVERALL_SEM)) %>% 
+  melt(id.vars = "RM24hour.spleen.ctrl$Timepoints", variable.name = "Samples", na.rm = T)
+LDP.acute.spleenstress.df <- select(LDP.acute.spleenstress.df, -c(OVERALL_MEAN, OVERALL_SEM)) %>% 
+  melt(id.vars = "RM24hour.spleen.stress$Timepoints", variable.name = "Samples", na.rm = T)
+
+LDP.chronic.spleen.df <- select(LDP.chronic.spleen.df, -c(OVERALL_MEAN, OVERALL_SEM)) %>% 
+  melt(id.vars = "RM24hour.spleen.ctrl$Timepoints", variable.name = "Samples", na.rm = T)
+LDP.chronic.spleenstress.df <- select(LDP.chronic.spleenstress.df, -c(OVERALL_MEAN, OVERALL_SEM)) %>% 
+  melt(id.vars = "RM24hour.spleen.stress$Timepoints", variable.name = "Samples", na.rm = T)
+
+
+
+############################################# kidneycortex #############################################
+EDP.acute.kidneycortex.df <- select(EDP.acute.kidneycortex.df, -c(OVERALL_MEAN, OVERALL_SEM)) %>% 
+  melt(id.vars = "RM24hour.kidneycrtx.ctrl$Timepoints", variable.name = "Samples", na.rm = T)
+EDP.acute.kidneycortexstress.df <- select(EDP.acute.kidneycortexstress.df, -c(OVERALL_MEAN, OVERALL_SEM)) %>% 
+  melt(id.vars = "RM24hour.kidneycrtx.stress$Timepoints", variable.name = "Samples", na.rm = T)
+
+EDP.chronic.kidneycortex.df <- select(EDP.chronic.kidneycortex.df, -c(OVERALL_MEAN, OVERALL_SEM)) %>% 
+  melt(id.vars = "RM24hour.kidneycrtx.ctrl$Timepoints", variable.name = "Samples", na.rm = T)
+EDP.chronic.kidneycortexstress.df <- select(EDP.chronic.kidneycortexstress.df, -c(OVERALL_MEAN, OVERALL_SEM)) %>% 
+  melt(id.vars = "RM24hour.kidneycrtx.stress$Timepoints", variable.name = "Samples", na.rm = T)
+
+
+LDP.acute.kidneycortex.df <- select(LDP.acute.kidneycortex.df, -c(OVERALL_MEAN, OVERALL_SEM)) %>% 
+  melt(id.vars = "RM24hour.kidneycrtx.ctrl$Timepoints", variable.name = "Samples", na.rm = T)
+LDP.acute.kidneycortexstress.df <- select(LDP.acute.kidneycortexstress.df, -c(OVERALL_MEAN, OVERALL_SEM)) %>% 
+  melt(id.vars = "RM24hour.kidneycrtx.stress$Timepoints", variable.name = "Samples", na.rm = T)
+
+LDP.chronic.kidneycortex.df <- select(LDP.chronic.kidneycortex.df, -c(OVERALL_MEAN, OVERALL_SEM)) %>% 
+  melt(id.vars = "RM24hour.kidneycrtx.ctrl$Timepoints", variable.name = "Samples", na.rm = T)
+LDP.chronic.kidneycortexstress.df <- select(LDP.chronic.kidneycortexstress.df, -c(OVERALL_MEAN, OVERALL_SEM)) %>% 
+  melt(id.vars = "RM24hour.kidneycrtx.stress$Timepoints", variable.name = "Samples", na.rm = T)
+
+
+
+############################################# kidneymedulla #############################################
+EDP.acute.kidneymedulla.df <- select(EDP.acute.kidneymedulla.df, -c(OVERALL_MEAN, OVERALL_SEM)) %>% 
+  melt(id.vars = "RM24hour.kidneymedu.ctrl$Timepoints", variable.name = "Samples", na.rm = T)
+EDP.acute.kidneymedullastress.df <- select(EDP.acute.kidneymedullastress.df, -c(OVERALL_MEAN, OVERALL_SEM)) %>% 
+  melt(id.vars = "RM24hour.kidneymedu.stress$Timepoints", variable.name = "Samples", na.rm = T)
+
+EDP.chronic.kidneymedulla.df <- select(EDP.chronic.kidneymedulla.df, -c(OVERALL_MEAN, OVERALL_SEM)) %>% 
+  melt(id.vars = "RM24hour.kidneymedu.ctrl$Timepoints", variable.name = "Samples", na.rm = T)
+EDP.chronic.kidneymedullastress.df <- select(EDP.chronic.kidneymedullastress.df, -c(OVERALL_MEAN, OVERALL_SEM)) %>% 
+  melt(id.vars = "RM24hour.kidneymedu.stress$Timepoints", variable.name = "Samples", na.rm = T)
+
+
+LDP.acute.kidneymedulla.df <- select(LDP.acute.kidneymedulla.df, -c(OVERALL_MEAN, OVERALL_SEM)) %>% 
+  melt(id.vars = "RM24hour.kidneymedu.ctrl$Timepoints", variable.name = "Samples", na.rm = T)
+LDP.acute.kidneymedullastress.df <- select(LDP.acute.kidneymedullastress.df, -c(OVERALL_MEAN, OVERALL_SEM)) %>% 
+  melt(id.vars = "RM24hour.kidneymedu.stress$Timepoints", variable.name = "Samples", na.rm = T)
+
+LDP.chronic.kidneymedulla.df <- select(LDP.chronic.kidneymedulla.df, -c(OVERALL_MEAN, OVERALL_SEM)) %>% 
+  melt(id.vars = "RM24hour.kidneymedu.ctrl$Timepoints", variable.name = "Samples", na.rm = T)
+LDP.chronic.kidneymedullastress.df <- select(LDP.chronic.kidneymedullastress.df, -c(OVERALL_MEAN, OVERALL_SEM)) %>% 
+  melt(id.vars = "RM24hour.kidneymedu.stress$Timepoints", variable.name = "Samples", na.rm = T)
+```
+
+```{r lung tissue new}
+EDP_acute_lung_graph <- ggplot(data = NULL,
+                               aes(x = NULL,
+                                   y = value)) + 
+                          # Draw the y=0 horizontal line
+                          geom_hline(yintercept = 0, linetype = 2, alpha = 0.75) +
+                          # Draw the first group; Control
+                          geom_line(data = EDP.acute.lung.df,
+                                    aes(x = `RM24hour.lung.ctrl$Timepoints`, 
+                                        colour = Samples)) + 
+                          scale_color_manual(name = "Control", values = colour.lung.EDP.AC) +
+                          # Reset the scale_colour_manual() to be able to choose another colour for the next geom_object
+                          new_scale_colour() + 
+                          # Draw the second group; Stress
+                          geom_line(data = EDP.acute.lungstress.df,
+                                    aes(x = `RM24hour.lung.stress$Timepoints`, 
+                                        colour = Samples)) +
+                          scale_color_manual(name = "Stress", values = colour.lung.EDP.AS) + 
+                          ## Edit plot area
+                          scale_x_continuous(limits = c(30, 110),
+                                             breaks = seq(from = 30, to = 110, by = 10)) + 
+                          scale_y_continuous(limits = c(-65, 65), 
+                                             breaks = seq(from = -65, to = 65, by = 10)) + 
+                          # Create x-axis and y-axis titles
+                          labs(title = "Normalized amplitudes in lung tissue", 
+                               subtitle = "EARLY DARK PHASE - ACUTE | Work in progress graph to discuss",
+                               x = "Time in medium [hr]", y = "Bioluminescence [%]") + 
+                          # Put the legend to the right
+                          theme(legend.direction = "vertical", legend.box = "vertical", #legend.position = "none",  
+                                plot.margin = margin(t = 2, r = 1, b = 1, l = 1, unit = "cm")) + 
+                          background_grid(major = "xy", minor = "xy", colour.major = "gray90", colour.minor = "gray90")
+
+EDP_chronic_lung_graph <- ggplot(data = NULL,
+                                 aes(x = NULL,
+                                     y = value)) + 
+                            # Draw the y=0 horizontal line
+                            geom_hline(yintercept = 0, linetype = 2, alpha = 0.75) +
+                            # Draw the first group; Control
+                            geom_line(data = EDP.chronic.lung.df,
+                                      aes(x = `RM24hour.lung.ctrl$Timepoints`, 
+                                          colour = Samples)) + 
+                            scale_color_manual(name = "Control", values = colour.lung.EDP.CC) +
+                            # Reset the scale_colour_manual() to be able to choose another colour for the next geom_object
+                            new_scale_colour() + 
+                            # Draw the second group; Stress
+                            geom_line(data = EDP.chronic.lungstress.df,
+                                      aes(x = `RM24hour.lung.stress$Timepoints`, 
+                                          colour = Samples)) +
+                            scale_color_manual(name = "Stress", values = colour.lung.EDP.CS) + 
+                            ## Edit plot area
+                            scale_x_continuous(limits = c(30, 110),
+                                               breaks = seq(from = 30, to = 110, by = 10)) + 
+                            scale_y_continuous(limits = c(-65, 65), 
+                                               breaks = seq(from = -65, to = 65, by = 10)) + 
+                            # Create x-axis and y-axis titles
+                            labs(title = "Normalized amplitudes in lung tissue", 
+                                 subtitle = "EARLY DARK PHASE - CHRONIC | Work in progress graph to discuss",
+                                 x = "Time in medium [hr]", y = "Bioluminescence [%]") + 
+                            # Put the legend to the right
+                            theme(legend.direction = "vertical", legend.box = "vertical", #legend.position = "none",  
+                                  plot.margin = margin(t = 2, r = 1, b = 1, l = 1, unit = "cm")) + 
+                            background_grid(major = "xy", minor = "xy", colour.major = "gray90", colour.minor = "gray90")
+
+
+
+LDP_acute_lung_graph <- ggplot(data = NULL,
+                               aes(x = NULL,
+                                   y = value)) + 
+                          # Draw the y=0 horizontal line
+                          geom_hline(yintercept = 0, linetype = 2, alpha = 0.75) +
+                          # Draw the first group; Control
+                          geom_line(data = LDP.acute.lung.df,
+                                    aes(x = `RM24hour.lung.ctrl$Timepoints`, 
+                                        colour = Samples)) + 
+                          scale_color_manual(name = "Control", values = colour.lung.LDP.AC) +
+                          # Reset the scale_colour_manual() to be able to choose another colour for the next geom_object
+                          new_scale_colour() + 
+                          # Draw the second group; Stress
+                          geom_line(data = LDP.acute.lungstress.df,
+                                    aes(x = `RM24hour.lung.stress$Timepoints`, 
+                                        colour = Samples)) +
+                          scale_color_manual(name = "Stress", values = colour.lung.LDP.AS) + 
+                          ## Edit plot area
+                          scale_x_continuous(limits = c(30, 110),
+                                             breaks = seq(from = 30, to = 110, by = 10)) + 
+                          scale_y_continuous(limits = c(-65, 65), 
+                                             breaks = seq(from = -65, to = 65, by = 10)) + 
+                          # Create x-axis and y-axis titles
+                          labs(title = "Normalized amplitudes in lung tissue", 
+                               subtitle = "LATE DARK PHASE - ACUTE | Work in progress graph to discuss",
+                               x = "Time in medium [hr]", y = "Bioluminescence [%]") + 
+                          # Put the legend to the right
+                          theme(legend.direction = "vertical", legend.box = "vertical", #legend.position = "none",  
+                                plot.margin = margin(t = 2, r = 1, b = 1, l = 1, unit = "cm")) + 
+                          background_grid(major = "xy", minor = "xy", colour.major = "gray90", colour.minor = "gray90")
+
+LDP_chronic_lung_graph <- ggplot(data = NULL,
+                                 aes(x = NULL,
+                                     y = value)) + 
+                            # Draw the y=0 horizontal line
+                            geom_hline(yintercept = 0, linetype = 2, alpha = 0.75) +
+                            # Draw the first group; Control
+                            geom_line(data = LDP.chronic.lung.df,
+                                      aes(x = `RM24hour.lung.ctrl$Timepoints`, 
+                                          colour = Samples)) + 
+                            scale_color_manual(name = "Control", values = colour.lung.LDP.CC) +
+                            # Reset the scale_colour_manual() to be able to choose another colour for the next geom_object
+                            new_scale_colour() + 
+                            # Draw the second group; Stress
+                            geom_line(data = LDP.chronic.lungstress.df,
+                                      aes(x = `RM24hour.lung.stress$Timepoints`, 
+                                          colour = Samples)) +
+                            scale_color_manual(name = "Stress", values = colour.lung.LDP.CS) + 
+                            ## Edit plot area
+                            scale_x_continuous(limits = c(30, 110),
+                                               breaks = seq(from = 30, to = 110, by = 10)) + 
+                            scale_y_continuous(limits = c(-65, 65), 
+                                               breaks = seq(from = -65, to = 65, by = 10)) + 
+                            # Create x-axis and y-axis titles
+                            labs(title = "Normalized amplitudes in lung tissue", 
+                                 subtitle = "LATE DARK PHASE - CHRONIC | Work in progress graph to discuss",
+                                 x = "Time in medium [hr]", y = "Bioluminescence [%]") + 
+                            # Put the legend to the right
+                            theme(legend.direction = "vertical", legend.box = "vertical", #legend.position = "none",  
+                                  plot.margin = margin(t = 2, r = 1, b = 1, l = 1, unit = "cm")) + 
+                            background_grid(major = "xy", minor = "xy", colour.major = "gray90", colour.minor = "gray90")
+
+
+## If something looks odd, check the individual plots in here
+ggplot(EDP.acute.lung.df, aes(`RM24hour.lung.ctrl$Timepoints`, value, colour = Samples)) + 
+  geom_line() + facet_grid(Samples ~ .) + scale_colour_manual(values = colour.lung.EDP.AC) 
+ggplot(EDP.acute.lungstress.df, aes(`RM24hour.lung.stress$Timepoints`, value, colour = Samples)) + 
+  geom_line() + facet_grid(Samples ~ .) + scale_colour_manual(values = colour.lung.EDP.AS) 
+ggplot(EDP.chronic.lung.df, aes(`RM24hour.lung.ctrl$Timepoints`, value, colour = Samples)) + 
+  geom_line() + facet_grid(Samples ~ .) + scale_colour_manual(values = colour.lung.EDP.CC) 
+ggplot(EDP.chronic.lungstress.df, aes(`RM24hour.lung.stress$Timepoints`, value, colour = Samples)) + 
+  geom_line() + facet_grid(Samples ~ .) + scale_colour_manual(values = colour.lung.EDP.CS)
+
+ggplot(LDP.acute.lung.df, aes(`RM24hour.lung.ctrl$Timepoints`, value, colour = Samples)) + 
+  geom_line() + facet_grid(Samples ~ .) + scale_colour_manual(values = colour.lung.LDP.AC) 
+ggplot(LDP.acute.lungstress.df, aes(`RM24hour.lung.stress$Timepoints`, value, colour = Samples)) + 
+  geom_line() + facet_grid(Samples ~ .) + scale_colour_manual(values = colour.lung.LDP.AS) 
+ggplot(LDP.chronic.lung.df, aes(`RM24hour.lung.ctrl$Timepoints`, value, colour = Samples)) + 
+  geom_line() + facet_grid(Samples ~ .) + scale_colour_manual(values = colour.lung.LDP.CC) 
+ggplot(LDP.chronic.lungstress.df, aes(`RM24hour.lung.stress$Timepoints`, value, colour = Samples)) + 
+  geom_line() + facet_grid(Samples ~ .) + scale_colour_manual(values = colour.lung.LDP.CS) 
+
+```
+
+```{r spleen tissue new}
+EDP_acute_spleen_graph <- ggplot(data = NULL,
+                               aes(x = NULL,
+                                   y = value)) + 
+                          # Draw the y=0 horizontal line
+                          geom_hline(yintercept = 0, linetype = 2, alpha = 0.75) +
+                          # Draw the first group; Control
+                          geom_line(data = EDP.acute.spleen.df,
+                                    aes(x = `RM24hour.spleen.ctrl$Timepoints`, 
+                                        colour = Samples)) + 
+                          scale_color_manual(name = "Control", values = colour.spleen.EDP.AC) +
+                          # Reset the scale_colour_manual() to be able to choose another colour for the next geom_object
+                          new_scale_colour() + 
+                          # Draw the second group; Stress
+                          geom_line(data = EDP.acute.spleenstress.df,
+                                    aes(x = `RM24hour.spleen.stress$Timepoints`, 
+                                        colour = Samples)) +
+                          scale_color_manual(name = "Stress", values = colour.spleen.EDP.AS) + 
+                          ## Edit plot area
+                          scale_x_continuous(limits = c(30, 110),
+                                             breaks = seq(from = 30, to = 110, by = 10)) + 
+                          scale_y_continuous(limits = c(-65, 65), 
+                                             breaks = seq(from = -65, to = 65, by = 10)) + 
+                          # Create x-axis and y-axis titles
+                          labs(title = "Normalized amplitudes in spleen tissue", 
+                               subtitle = "EARLY DARK PHASE - ACUTE | Work in progress graph to discuss",
+                               x = "Time in medium [hr]", y = "Bioluminescence [%]") + 
+                          # Put the legend to the right
+                          theme(legend.direction = "vertical", legend.box = "vertical", #legend.position = "none",  
+                                plot.margin = margin(t = 2, r = 1, b = 1, l = 1, unit = "cm")) + 
+                          background_grid(major = "xy", minor = "xy", colour.major = "gray90", colour.minor = "gray90")
+
+EDP_chronic_spleen_graph <- ggplot(data = NULL,
+                                 aes(x = NULL,
+                                     y = value)) + 
+                            # Draw the y=0 horizontal line
+                            geom_hline(yintercept = 0, linetype = 2, alpha = 0.75) +
+                            # Draw the first group; Control
+                            geom_line(data = EDP.chronic.spleen.df,
+                                      aes(x = `RM24hour.spleen.ctrl$Timepoints`, 
+                                          colour = Samples)) + 
+                            scale_color_manual(name = "Control", values = colour.spleen.EDP.CC) +
+                            # Reset the scale_colour_manual() to be able to choose another colour for the next geom_object
+                            new_scale_colour() + 
+                            # Draw the second group; Stress
+                            geom_line(data = EDP.chronic.spleenstress.df,
+                                      aes(x = `RM24hour.spleen.stress$Timepoints`, 
+                                          colour = Samples)) +
+                            scale_color_manual(name = "Stress", values = colour.spleen.EDP.CS) + 
+                            ## Edit plot area
+                            scale_x_continuous(limits = c(30, 110),
+                                               breaks = seq(from = 30, to = 110, by = 10)) + 
+                            scale_y_continuous(limits = c(-65, 65), 
+                                               breaks = seq(from = -65, to = 65, by = 10)) + 
+                            # Create x-axis and y-axis titles
+                            labs(title = "Normalized amplitudes in spleen tissue", 
+                                 subtitle = "EARLY DARK PHASE - CHRONIC | Work in progress graph to discuss",
+                                 x = "Time in medium [hr]", y = "Bioluminescence [%]") + 
+                            # Put the legend to the right
+                            theme(legend.direction = "vertical", legend.box = "vertical", #legend.position = "none",  
+                                  plot.margin = margin(t = 2, r = 1, b = 1, l = 1, unit = "cm")) + 
+                            background_grid(major = "xy", minor = "xy", colour.major = "gray90", colour.minor = "gray90")
+
+
+
+LDP_acute_spleen_graph <- ggplot(data = NULL,
+                               aes(x = NULL,
+                                   y = value)) + 
+                          # Draw the y=0 horizontal line
+                          geom_hline(yintercept = 0, linetype = 2, alpha = 0.75) +
+                          # Draw the first group; Control
+                          geom_line(data = LDP.acute.spleen.df,
+                                    aes(x = `RM24hour.spleen.ctrl$Timepoints`, 
+                                        colour = Samples)) + 
+                          scale_color_manual(name = "Control", values = colour.spleen.LDP.AC) +
+                          # Reset the scale_colour_manual() to be able to choose another colour for the next geom_object
+                          new_scale_colour() + 
+                          # Draw the second group; Stress
+                          geom_line(data = LDP.acute.spleenstress.df,
+                                    aes(x = `RM24hour.spleen.stress$Timepoints`, 
+                                        colour = Samples)) +
+                          scale_color_manual(name = "Stress", values = colour.spleen.LDP.AS) + 
+                          ## Edit plot area
+                          scale_x_continuous(limits = c(30, 110),
+                                             breaks = seq(from = 30, to = 110, by = 10)) + 
+                          scale_y_continuous(limits = c(-65, 65), 
+                                             breaks = seq(from = -65, to = 65, by = 10)) + 
+                          # Create x-axis and y-axis titles
+                          labs(title = "Normalized amplitudes in spleen tissue", 
+                               subtitle = "LATE DARK PHASE - ACUTE | Work in progress graph to discuss",
+                               x = "Time in medium [hr]", y = "Bioluminescence [%]") + 
+                          # Put the legend to the right
+                          theme(legend.direction = "vertical", legend.box = "vertical", #legend.position = "none",  
+                                plot.margin = margin(t = 2, r = 1, b = 1, l = 1, unit = "cm")) + 
+                          background_grid(major = "xy", minor = "xy", colour.major = "gray90", colour.minor = "gray90")
+
+LDP_chronic_spleen_graph <- ggplot(data = NULL,
+                                 aes(x = NULL,
+                                     y = value)) + 
+                            # Draw the y=0 horizontal line
+                            geom_hline(yintercept = 0, linetype = 2, alpha = 0.75) +
+                            # Draw the first group; Control
+                            geom_line(data = LDP.chronic.spleen.df,
+                                      aes(x = `RM24hour.spleen.ctrl$Timepoints`, 
+                                          colour = Samples)) + 
+                            scale_color_manual(name = "Control", values = colour.spleen.LDP.CC) +
+                            # Reset the scale_colour_manual() to be able to choose another colour for the next geom_object
+                            new_scale_colour() + 
+                            # Draw the second group; Stress
+                            geom_line(data = LDP.chronic.spleenstress.df,
+                                      aes(x = `RM24hour.spleen.stress$Timepoints`, 
+                                          colour = Samples)) +
+                            scale_color_manual(name = "Stress", values = colour.spleen.LDP.CS) + 
+                            ## Edit plot area
+                            scale_x_continuous(limits = c(30, 110),
+                                               breaks = seq(from = 30, to = 110, by = 10)) + 
+                            scale_y_continuous(limits = c(-65, 65), 
+                                               breaks = seq(from = -65, to = 65, by = 10)) + 
+                            # Create x-axis and y-axis titles
+                            labs(title = "Normalized amplitudes in spleen tissue", 
+                                 subtitle = "LATE DARK PHASE - CHRONIC | Work in progress graph to discuss",
+                                 x = "Time in medium [hr]", y = "Bioluminescence [%]") + 
+                            # Put the legend to the right
+                            theme(legend.direction = "vertical", legend.box = "vertical", #legend.position = "none",  
+                                  plot.margin = margin(t = 2, r = 1, b = 1, l = 1, unit = "cm")) + 
+                            background_grid(major = "xy", minor = "xy", colour.major = "gray90", colour.minor = "gray90")
+
+
+## If something looks odd, check the individual plots in here
+ggplot(EDP.acute.spleen.df, aes(`RM24hour.spleen.ctrl$Timepoints`, value, colour = Samples)) + 
+  geom_line() + facet_grid(Samples ~ .) + scale_colour_manual(values = colour.spleen.EDP.AC)
+ggplot(EDP.acute.spleenstress.df, aes(`RM24hour.spleen.stress$Timepoints`, value, colour = Samples)) + 
+  geom_line() + facet_grid(Samples ~ .) + scale_colour_manual(values = colour.spleen.EDP.AS) 
+ggplot(EDP.chronic.spleen.df, aes(`RM24hour.spleen.ctrl$Timepoints`, value, colour = Samples)) + 
+  geom_line() + facet_grid(Samples ~ .) + scale_colour_manual(values = colour.spleen.EDP.CC) 
+ggplot(EDP.chronic.spleenstress.df, aes(`RM24hour.spleen.stress$Timepoints`, value, colour = Samples)) + 
+  geom_line() + facet_grid(Samples ~ .) + scale_colour_manual(values = colour.spleen.EDP.CS)
+
+ggplot(LDP.acute.spleen.df, aes(`RM24hour.spleen.ctrl$Timepoints`, value, colour = Samples)) + 
+  geom_line() + facet_grid(Samples ~ .) + scale_colour_manual(values = colour.spleen.LDP.AC) 
+ggplot(LDP.acute.spleenstress.df, aes(`RM24hour.spleen.stress$Timepoints`, value, colour = Samples)) + 
+  geom_line() + facet_grid(Samples ~ .) + scale_colour_manual(values = colour.spleen.LDP.AS) 
+ggplot(LDP.chronic.spleen.df, aes(`RM24hour.spleen.ctrl$Timepoints`, value, colour = Samples)) + 
+  geom_line() + facet_grid(Samples ~ .) + scale_colour_manual(values = colour.spleen.LDP.CC) 
+ggplot(LDP.chronic.spleenstress.df, aes(`RM24hour.spleen.stress$Timepoints`, value, colour = Samples)) + 
+  geom_line() + facet_grid(Samples ~ .) + scale_colour_manual(values = colour.spleen.LDP.CS) 
+
+```
+
+```{r kidneycortex tissue new}
+EDP_acute_kidneycortex_graph <- ggplot(data = NULL,
+                               aes(x = NULL,
+                                   y = value)) + 
+                          # Draw the y=0 horizontal line
+                          geom_hline(yintercept = 0, linetype = 2, alpha = 0.75) +
+                          # Draw the first group; Control
+                          geom_line(data = EDP.acute.kidneycortex.df,
+                                    aes(x = `RM24hour.kidneycrtx.ctrl$Timepoints`, 
+                                        colour = Samples)) + 
+                          scale_color_manual(name = "Control", values = colour.kidneycortex.EDP.AC) +
+                          # Reset the scale_colour_manual() to be able to choose another colour for the next geom_object
+                          new_scale_colour() + 
+                          # Draw the second group; Stress
+                          geom_line(data = EDP.acute.kidneycortexstress.df,
+                                    aes(x = `RM24hour.kidneycrtx.stress$Timepoints`, 
+                                        colour = Samples)) +
+                          scale_color_manual(name = "Stress", values = colour.kidneycortex.EDP.AS) + 
+                          ## Edit plot area
+                          scale_x_continuous(limits = c(30, 110),
+                                             breaks = seq(from = 30, to = 110, by = 10)) + 
+                          scale_y_continuous(limits = c(-65, 65), 
+                                             breaks = seq(from = -65, to = 65, by = 10)) + 
+                          # Create x-axis and y-axis titles
+                          labs(title = "Normalized amplitudes in kidneycortex tissue", 
+                               subtitle = "EARLY DARK PHASE - ACUTE | Work in progress graph to discuss",
+                               x = "Time in medium [hr]", y = "Bioluminescence [%]") + 
+                          # Put the legend to the right
+                          theme(legend.direction = "vertical", legend.box = "vertical", #legend.position = "none",  
+                                plot.margin = margin(t = 2, r = 1, b = 1, l = 1, unit = "cm")) + 
+                          background_grid(major = "xy", minor = "xy", colour.major = "gray90", colour.minor = "gray90")
+
+EDP_chronic_kidneycortex_graph <- ggplot(data = NULL,
+                                 aes(x = NULL,
+                                     y = value)) + 
+                            # Draw the y=0 horizontal line
+                            geom_hline(yintercept = 0, linetype = 2, alpha = 0.75) +
+                            # Draw the first group; Control
+                            geom_line(data = EDP.chronic.kidneycortex.df,
+                                      aes(x = `RM24hour.kidneycrtx.ctrl$Timepoints`, 
+                                          colour = Samples)) + 
+                            scale_color_manual(name = "Control", values = colour.kidneycortex.EDP.CC) +
+                            # Reset the scale_colour_manual() to be able to choose another colour for the next geom_object
+                            new_scale_colour() + 
+                            # Draw the second group; Stress
+                            geom_line(data = EDP.chronic.kidneycortexstress.df,
+                                      aes(x = `RM24hour.kidneycrtx.stress$Timepoints`, 
+                                          colour = Samples)) +
+                            scale_color_manual(name = "Stress", values = colour.kidneycortex.EDP.CS) + 
+                            ## Edit plot area
+                            scale_x_continuous(limits = c(30, 110),
+                                               breaks = seq(from = 30, to = 110, by = 10)) + 
+                            scale_y_continuous(limits = c(-65, 65), 
+                                               breaks = seq(from = -65, to = 65, by = 10)) + 
+                            # Create x-axis and y-axis titles
+                            labs(title = "Normalized amplitudes in kidneycortex tissue", 
+                                 subtitle = "EARLY DARK PHASE - CHRONIC | Work in progress graph to discuss",
+                                 x = "Time in medium [hr]", y = "Bioluminescence [%]") + 
+                            # Put the legend to the right
+                            theme(legend.direction = "vertical", legend.box = "vertical", #legend.position = "none",  
+                                  plot.margin = margin(t = 2, r = 1, b = 1, l = 1, unit = "cm")) + 
+                            background_grid(major = "xy", minor = "xy", colour.major = "gray90", colour.minor = "gray90")
+
+
+
+LDP_acute_kidneycortex_graph <- ggplot(data = NULL,
+                               aes(x = NULL,
+                                   y = value)) + 
+                          # Draw the y=0 horizontal line
+                          geom_hline(yintercept = 0, linetype = 2, alpha = 0.75) +
+                          # Draw the first group; Control
+                          geom_line(data = LDP.acute.kidneycortex.df,
+                                    aes(x = `RM24hour.kidneycrtx.ctrl$Timepoints`, 
+                                        colour = Samples)) + 
+                          scale_color_manual(name = "Control", values = colour.kidneycortex.LDP.AC) +
+                          # Reset the scale_colour_manual() to be able to choose another colour for the next geom_object
+                          new_scale_colour() + 
+                          # Draw the second group; Stress
+                          geom_line(data = LDP.acute.kidneycortexstress.df,
+                                    aes(x = `RM24hour.kidneycrtx.stress$Timepoints`, 
+                                        colour = Samples)) +
+                          scale_color_manual(name = "Stress", values = colour.kidneycortex.LDP.AS) + 
+                          ## Edit plot area
+                          scale_x_continuous(limits = c(30, 110),
+                                             breaks = seq(from = 30, to = 110, by = 10)) + 
+                          scale_y_continuous(limits = c(-65, 65), 
+                                             breaks = seq(from = -65, to = 65, by = 10)) + 
+                          # Create x-axis and y-axis titles
+                          labs(title = "Normalized amplitudes in kidneycortex tissue", 
+                               subtitle = "LATE DARK PHASE - ACUTE | Work in progress graph to discuss",
+                               x = "Time in medium [hr]", y = "Bioluminescence [%]") + 
+                          # Put the legend to the right
+                          theme(legend.direction = "vertical", legend.box = "vertical", #legend.position = "none",  
+                                plot.margin = margin(t = 2, r = 1, b = 1, l = 1, unit = "cm")) + 
+                          background_grid(major = "xy", minor = "xy", colour.major = "gray90", colour.minor = "gray90")
+
+LDP_chronic_kidneycortex_graph <- ggplot(data = NULL,
+                                 aes(x = NULL,
+                                     y = value)) + 
+                            # Draw the y=0 horizontal line
+                            geom_hline(yintercept = 0, linetype = 2, alpha = 0.75) +
+                            # Draw the first group; Control
+                            geom_line(data = LDP.chronic.kidneycortex.df,
+                                      aes(x = `RM24hour.kidneycrtx.ctrl$Timepoints`, 
+                                          colour = Samples)) + 
+                            scale_color_manual(name = "Control", values = colour.kidneycortex.LDP.CC) +
+                            # Reset the scale_colour_manual() to be able to choose another colour for the next geom_object
+                            new_scale_colour() + 
+                            # Draw the second group; Stress
+                            geom_line(data = LDP.chronic.kidneycortexstress.df,
+                                      aes(x = `RM24hour.kidneycrtx.stress$Timepoints`, 
+                                          colour = Samples)) +
+                            scale_color_manual(name = "Stress", values = colour.kidneycortex.LDP.CS) + 
+                            ## Edit plot area
+                            scale_x_continuous(limits = c(30, 110),
+                                               breaks = seq(from = 30, to = 110, by = 10)) + 
+                            scale_y_continuous(limits = c(-65, 65), 
+                                               breaks = seq(from = -65, to = 65, by = 10)) + 
+                            # Create x-axis and y-axis titles
+                            labs(title = "Normalized amplitudes in kidneycortex tissue", 
+                                 subtitle = "LATE DARK PHASE - CHRONIC | Work in progress graph to discuss",
+                                 x = "Time in medium [hr]", y = "Bioluminescence [%]") + 
+                            # Put the legend to the right
+                            theme(legend.direction = "vertical", legend.box = "vertical", #legend.position = "none",  
+                                  plot.margin = margin(t = 2, r = 1, b = 1, l = 1, unit = "cm")) + 
+                            background_grid(major = "xy", minor = "xy", colour.major = "gray90", colour.minor = "gray90")
+
+
+## If something looks odd, check the individual plots in here
+ggplot(EDP.acute.kidneycortex.df, aes(`RM24hour.kidneycrtx.ctrl$Timepoints`, value, colour = Samples)) + 
+  geom_line() + facet_grid(Samples ~ .) + scale_colour_manual(values = colour.kidneycortex.EDP.AC) 
+ggplot(EDP.acute.kidneycortexstress.df, aes(`RM24hour.kidneycrtx.stress$Timepoints`, value, colour = Samples)) + 
+  geom_line() + facet_grid(Samples ~ .) + scale_colour_manual(values = colour.kidneycortex.EDP.AS) 
+ggplot(EDP.chronic.kidneycortex.df, aes(`RM24hour.kidneycrtx.ctrl$Timepoints`, value, colour = Samples)) + 
+  geom_line() + facet_grid(Samples ~ .) + scale_colour_manual(values = colour.kidneycortex.EDP.CC) 
+ggplot(EDP.chronic.kidneycortexstress.df, aes(`RM24hour.kidneycrtx.stress$Timepoints`, value, colour = Samples)) + 
+  geom_line() + facet_grid(Samples ~ .) + scale_colour_manual(values = colour.kidneycortex.EDP.CS)
+
+ggplot(LDP.acute.kidneycortex.df, aes(`RM24hour.kidneycrtx.ctrl$Timepoints`, value, colour = Samples)) + 
+  geom_line() + facet_grid(Samples ~ .) + scale_colour_manual(values = colour.kidneycortex.LDP.AC) 
+ggplot(LDP.acute.kidneycortexstress.df, aes(`RM24hour.kidneycrtx.stress$Timepoints`, value, colour = Samples)) + 
+  geom_line() + facet_grid(Samples ~ .) + scale_colour_manual(values = colour.kidneycortex.LDP.AS) 
+ggplot(LDP.chronic.kidneycortex.df, aes(`RM24hour.kidneycrtx.ctrl$Timepoints`, value, colour = Samples)) + 
+  geom_line() + facet_grid(Samples ~ .) + scale_colour_manual(values = colour.kidneycortex.LDP.CC) 
+ggplot(LDP.chronic.kidneycortexstress.df, aes(`RM24hour.kidneycrtx.stress$Timepoints`, value, colour = Samples)) + 
+  geom_line() + facet_grid(Samples ~ .) + scale_colour_manual(values = colour.kidneycortex.LDP.CS) 
+
+```
+
+```{r kidneymedulla tissue new}
+EDP_acute_kidneymedulla_graph <- ggplot(data = NULL,
+                               aes(x = NULL,
+                                   y = value)) + 
+                          # Draw the y=0 horizontal line
+                          geom_hline(yintercept = 0, linetype = 2, alpha = 0.75) +
+                          # Draw the first group; Control
+                          geom_line(data = EDP.acute.kidneymedulla.df,
+                                    aes(x = `RM24hour.kidneymedu.ctrl$Timepoints`, 
+                                        colour = Samples)) + 
+                          scale_color_manual(name = "Control", values = colour.kidneymedulla.EDP.AC) +
+                          # Reset the scale_colour_manual() to be able to choose another colour for the next geom_object
+                          new_scale_colour() + 
+                          # Draw the second group; Stress
+                          geom_line(data = EDP.acute.kidneymedullastress.df,
+                                    aes(x = `RM24hour.kidneymedu.stress$Timepoints`, 
+                                        colour = Samples)) +
+                          scale_color_manual(name = "Stress", values = colour.kidneymedulla.EDP.AS) + 
+                          ## Edit plot area
+                          scale_x_continuous(limits = c(30, 110),
+                                             breaks = seq(from = 30, to = 110, by = 10)) + 
+                          scale_y_continuous(limits = c(-65, 65), 
+                                             breaks = seq(from = -65, to = 65, by = 10)) + 
+                          # Create x-axis and y-axis titles
+                          labs(title = "Normalized amplitudes in kidneymedulla tissue", 
+                               subtitle = "EARLY DARK PHASE - ACUTE | Work in progress graph to discuss",
+                               x = "Time in medium [hr]", y = "Bioluminescence [%]") + 
+                          # Put the legend to the right
+                          theme(legend.direction = "vertical", legend.box = "vertical", #legend.position = "none",  
+                                plot.margin = margin(t = 2, r = 1, b = 1, l = 1, unit = "cm")) + 
+                          background_grid(major = "xy", minor = "xy", colour.major = "gray90", colour.minor = "gray90")
+
+EDP_chronic_kidneymedulla_graph <- ggplot(data = NULL,
+                                 aes(x = NULL,
+                                     y = value)) + 
+                            # Draw the y=0 horizontal line
+                            geom_hline(yintercept = 0, linetype = 2, alpha = 0.75) +
+                            # Draw the first group; Control
+                            geom_line(data = EDP.chronic.kidneymedulla.df,
+                                      aes(x = `RM24hour.kidneymedu.ctrl$Timepoints`, 
+                                          colour = Samples)) + 
+                            scale_color_manual(name = "Control", values = colour.kidneymedulla.EDP.CC) +
+                            # Reset the scale_colour_manual() to be able to choose another colour for the next geom_object
+                            new_scale_colour() + 
+                            # Draw the second group; Stress
+                            geom_line(data = EDP.chronic.kidneymedullastress.df,
+                                      aes(x = `RM24hour.kidneymedu.stress$Timepoints`, 
+                                          colour = Samples)) +
+                            scale_color_manual(name = "Stress", values = colour.kidneymedulla.EDP.CS) + 
+                            ## Edit plot area
+                            scale_x_continuous(limits = c(30, 110),
+                                               breaks = seq(from = 30, to = 110, by = 10)) + 
+                            scale_y_continuous(limits = c(-65, 65), 
+                                               breaks = seq(from = -65, to = 65, by = 10)) + 
+                            # Create x-axis and y-axis titles
+                            labs(title = "Normalized amplitudes in kidneymedulla tissue", 
+                                 subtitle = "EARLY DARK PHASE - CHRONIC | Work in progress graph to discuss",
+                                 x = "Time in medium [hr]", y = "Bioluminescence [%]") + 
+                            # Put the legend to the right
+                            theme(legend.direction = "vertical", legend.box = "vertical", #legend.position = "none",  
+                                  plot.margin = margin(t = 2, r = 1, b = 1, l = 1, unit = "cm")) + 
+                            background_grid(major = "xy", minor = "xy", colour.major = "gray90", colour.minor = "gray90")
+
+
+
+LDP_acute_kidneymedulla_graph <- ggplot(data = NULL,
+                               aes(x = NULL,
+                                   y = value)) + 
+                          # Draw the y=0 horizontal line
+                          geom_hline(yintercept = 0, linetype = 2, alpha = 0.75) +
+                          # Draw the first group; Control
+                          geom_line(data = LDP.acute.kidneymedulla.df,
+                                    aes(x = `RM24hour.kidneymedu.ctrl$Timepoints`, 
+                                        colour = Samples)) + 
+                          scale_color_manual(name = "Control", values = colour.kidneymedulla.LDP.AC) +
+                          # Reset the scale_colour_manual() to be able to choose another colour for the next geom_object
+                          new_scale_colour() + 
+                          # Draw the second group; Stress
+                          geom_line(data = LDP.acute.kidneymedullastress.df,
+                                    aes(x = `RM24hour.kidneymedu.stress$Timepoints`, 
+                                        colour = Samples)) +
+                          scale_color_manual(name = "Stress", values = colour.kidneymedulla.LDP.AS) + 
+                          ## Edit plot area
+                          scale_x_continuous(limits = c(30, 110),
+                                             breaks = seq(from = 30, to = 110, by = 10)) + 
+                          scale_y_continuous(limits = c(-65, 65), 
+                                             breaks = seq(from = -65, to = 65, by = 10)) + 
+                          # Create x-axis and y-axis titles
+                          labs(title = "Normalized amplitudes in kidneymedulla tissue", 
+                               subtitle = "LATE DARK PHASE - ACUTE | Work in progress graph to discuss",
+                               x = "Time in medium [hr]", y = "Bioluminescence [%]") + 
+                          # Put the legend to the right
+                          theme(legend.direction = "vertical", legend.box = "vertical",  #legend.position = "none", 
+                                plot.margin = margin(t = 2, r = 1, b = 1, l = 1, unit = "cm")) + 
+                          background_grid(major = "xy", minor = "xy", colour.major = "gray90", colour.minor = "gray90")
+
+LDP_chronic_kidneymedulla_graph <- ggplot(data = NULL,
+                                 aes(x = NULL,
+                                     y = value)) + 
+                            # Draw the y=0 horizontal line
+                            geom_hline(yintercept = 0, linetype = 2, alpha = 0.75) +
+                            # Draw the first group; Control
+                            geom_line(data = LDP.chronic.kidneymedulla.df,
+                                      aes(x = `RM24hour.kidneymedu.ctrl$Timepoints`, 
+                                          colour = Samples)) + 
+                            scale_color_manual(name = "Control", values = colour.kidneymedulla.LDP.CC) +
+                            # Reset the scale_colour_manual() to be able to choose another colour for the next geom_object
+                            new_scale_colour() + 
+                            # Draw the second group; Stress
+                            geom_line(data = LDP.chronic.kidneymedullastress.df,
+                                      aes(x = `RM24hour.kidneymedu.stress$Timepoints`, 
+                                          colour = Samples)) +
+                            scale_color_manual(name = "Stress", values = colour.kidneymedulla.LDP.CS) + 
+                            ## Edit plot area
+                            scale_x_continuous(limits = c(30, 110),
+                                               breaks = seq(from = 30, to = 110, by = 10)) + 
+                            scale_y_continuous(limits = c(-65, 65), 
+                                               breaks = seq(from = -65, to = 65, by = 10)) + 
+                            # Create x-axis and y-axis titles
+                            labs(title = "Normalized amplitudes in kidneymedulla tissue", 
+                                 subtitle = "LATE DARK PHASE - CHRONIC | Work in progress graph to discuss",
+                                 x = "Time in medium [hr]", y = "Bioluminescence [%]") + 
+                            # Put the legend to the right
+                            theme(legend.direction = "vertical", legend.box = "vertical", #legend.position = "none",  
+                                  plot.margin = margin(t = 2, r = 1, b = 1, l = 1, unit = "cm")) +
+                            background_grid(major = "xy", minor = "xy", colour.major = "gray90", colour.minor = "gray90")
+
+
+## If something looks odd, check the individual plots in here
+ggplot(EDP.acute.kidneymedulla.df, aes(`RM24hour.kidneymedu.ctrl$Timepoints`, value, colour = Samples)) + 
+  geom_line() + facet_grid(Samples ~ .) + scale_colour_manual(values = colour.kidneymedulla.EDP.AC) 
+ggplot(EDP.acute.kidneymedullastress.df, aes(`RM24hour.kidneymedu.stress$Timepoints`, value, colour = Samples)) + 
+  geom_line() + facet_grid(Samples ~ .) + scale_colour_manual(values = colour.kidneymedulla.EDP.AS) 
+ggplot(EDP.chronic.kidneymedulla.df, aes(`RM24hour.kidneymedu.ctrl$Timepoints`, value, colour = Samples)) + 
+  geom_line() + facet_grid(Samples ~ .) + scale_colour_manual(values = colour.kidneymedulla.EDP.CC) 
+ggplot(EDP.chronic.kidneymedullastress.df, aes(`RM24hour.kidneymedu.stress$Timepoints`, value, colour = Samples)) + 
+  geom_line() + facet_grid(Samples ~ .) + scale_colour_manual(values = colour.kidneymedulla.EDP.CS)
+
+ggplot(LDP.acute.kidneymedulla.df, aes(`RM24hour.kidneymedu.ctrl$Timepoints`, value, colour = Samples)) + 
+  geom_line() + facet_grid(Samples ~ .) + scale_colour_manual(values = colour.kidneymedulla.LDP.AC) 
+ggplot(LDP.acute.kidneymedullastress.df, aes(`RM24hour.kidneymedu.stress$Timepoints`, value, colour = Samples)) + 
+  geom_line() + facet_grid(Samples ~ .) + scale_colour_manual(values = colour.kidneymedulla.LDP.AS) 
+ggplot(LDP.chronic.kidneymedulla.df, aes(`RM24hour.kidneymedu.ctrl$Timepoints`, value, colour = Samples)) + 
+  geom_line() + facet_grid(Samples ~ .) + scale_colour_manual(values = colour.kidneymedulla.LDP.CC) 
+ggplot(LDP.chronic.kidneymedullastress.df, aes(`RM24hour.kidneymedu.stress$Timepoints`, value, colour = Samples)) + 
+  geom_line() + facet_grid(Samples ~ .) + scale_colour_manual(values = colour.kidneymedulla.LDP.CS) 
+
+```
+
+
+
+```{r Save all the plots into a pdf, eval = F}
+
+ggsave(file="EDP acute lung.pdf", plot = EDP_acute_lung_graph, width = 11, height = 8.5, dpi = 300)
+ggsave(file="EDP chronic lung.pdf", plot = EDP_chronic_lung_graph, width = 11, height = 8.5, dpi = 300)
+ggsave(file="EDP acute spleen.pdf", plot = EDP_acute_spleen_graph, width = 11, height = 8.5, dpi = 300)
+ggsave(file="EDP chronic spleen.pdf", plot = EDP_chronic_spleen_graph, width = 11, height = 8.5, dpi = 300)
+ggsave(file="EDP acute kidneycortex.pdf", plot = EDP_acute_kidneycortex_graph, width = 11, height = 8.5, dpi = 300)
+ggsave(file="EDP chronic kidneycortex.pdf", plot = EDP_chronic_kidneycortex_graph, width = 11, height = 8.5, dpi = 300)
+ggsave(file="EDP acute kidneymedulla.pdf", plot = EDP_acute_kidneymedulla_graph, width = 11, height = 8.5, dpi = 300)
+ggsave(file="EDP chronic kidneymedulla.pdf", plot = EDP_chronic_kidneymedulla_graph, width = 11, height = 8.5, dpi = 300)
+ggsave(file="LDP acute lung.pdf", plot = LDP_acute_lung_graph, width = 11, height = 8.5, dpi = 300)
+ggsave(file="LDP chronic lung.pdf", plot = LDP_chronic_lung_graph, width = 11, height = 8.5, dpi = 300)
+ggsave(file="LDP acute spleen.pdf", plot = LDP_acute_spleen_graph, width = 11, height = 8.5, dpi = 300)
+ggsave(file="LDP chronic spleen.pdf", plot = LDP_chronic_spleen_graph, width = 11, height = 8.5, dpi = 300)
+ggsave(file="LDP acute kidneycortex.pdf", plot = LDP_acute_kidneycortex_graph, width = 11, height = 8.5, dpi = 300)
+ggsave(file="LDP chronic kidneycortex.pdf", plot = LDP_chronic_kidneycortex_graph, width = 11, height = 8.5, dpi = 300)
+ggsave(file="LDP acute kidneymedulla.pdf", plot = LDP_acute_kidneymedulla_graph, width = 11, height = 8.5, dpi = 300)
+ggsave(file="LDP chronic kidneymedulla.pdf", plot = LDP_chronic_kidneymedulla_graph, width = 11, height = 8.5, dpi = 300)
+
+
+ggsave(file = "EDP acute kidneycortex control separated.pdf", 
+       plot = ggplot(EDP.acute.kidneycortex.df, aes(`RM24hour.kidneycrtx.ctrl$Timepoints`, value, colour = Samples)) + 
+         geom_line() + #theme(legend.position = "none") + 
+         facet_grid(Samples ~ .) + scale_colour_manual(values = colour.kidneycortex.EDP.AC), 
+       width = 11, height = 8.5, dpi = 300)
+ggsave(file = "EDP acute kidneycortex stress separated.pdf", 
+       plot = ggplot(EDP.acute.kidneycortexstress.df, aes(`RM24hour.kidneycrtx.stress$Timepoints`, value, colour = Samples)) + 
+         geom_line() + #theme(legend.position = "none") + 
+         facet_grid(Samples ~ .) + scale_colour_manual(values = colour.kidneycortex.EDP.AS) ,
+       width = 11, height = 8.5, dpi = 300)
+ggsave(file = "EDP chronic kidneycortex control separated.pdf", 
+       plot = ggplot(EDP.chronic.kidneycortex.df, aes(`RM24hour.kidneycrtx.ctrl$Timepoints`, value, colour = Samples)) + 
+         geom_line() + #theme(legend.position = "none") + 
+         facet_grid(Samples ~ .) + scale_colour_manual(values = colour.kidneycortex.EDP.CC),
+       width = 11, height = 8.5, dpi = 300)
+ggsave(file = "EDP chronic kidneycortex stress separated.pdf", 
+       plot = ggplot(EDP.chronic.kidneycortexstress.df, aes(`RM24hour.kidneycrtx.stress$Timepoints`, value, colour = Samples)) + 
+         geom_line() + #theme(legend.position = "none") + 
+         facet_grid(Samples ~ .) + scale_colour_manual(values = colour.kidneycortex.EDP.CS),
+       width = 11, height = 8.5, dpi = 300)
+
+ggsave(file = "EDP acute kidneymedulla control separated.pdf", 
+       plot = ggplot(EDP.acute.kidneymedulla.df, aes(`RM24hour.kidneymedu.ctrl$Timepoints`, value, colour = Samples)) + 
+         geom_line() + #theme(legend.position = "none") + 
+         facet_grid(Samples ~ .) + scale_colour_manual(values = colour.kidneymedulla.EDP.AC), 
+       width = 11, height = 8.5, dpi = 300)
+ggsave(file = "EDP acute kidneymedulla stress separated.pdf", 
+       plot = ggplot(EDP.acute.kidneymedullastress.df, aes(`RM24hour.kidneymedu.stress$Timepoints`, value, colour = Samples)) + 
+         geom_line() + #theme(legend.position = "none") + 
+         facet_grid(Samples ~ .) + scale_colour_manual(values = colour.kidneymedulla.EDP.AS) ,
+       width = 11, height = 8.5, dpi = 300)
+ggsave(file = "EDP chronic kidneymedulla control separated.pdf", 
+       plot = ggplot(EDP.chronic.kidneymedulla.df, aes(`RM24hour.kidneymedu.ctrl$Timepoints`, value, colour = Samples)) + 
+         geom_line() + #theme(legend.position = "none") + 
+         facet_grid(Samples ~ .) + scale_colour_manual(values = colour.kidneymedulla.EDP.CC),
+       width = 11, height = 8.5, dpi = 300)
+ggsave(file = "EDP chronic kidneymedulla stress separated.pdf", 
+       plot = ggplot(EDP.chronic.kidneymedullastress.df, aes(`RM24hour.kidneymedu.stress$Timepoints`, value, colour = Samples)) + 
+         geom_line() + #theme(legend.position = "none") + 
+         facet_grid(Samples ~ .) + scale_colour_manual(values = colour.kidneymedulla.EDP.CS),
+       width = 11, height = 8.5, dpi = 300)
+
+ggsave(file = "EDP acute lung control separated.pdf", 
+       plot = ggplot(EDP.acute.lung.df, aes(`RM24hour.lung.ctrl$Timepoints`, value, colour = Samples)) + 
+         geom_line() + #theme(legend.position = "none") + 
+         facet_grid(Samples ~ .) + scale_colour_manual(values = colour.lung.EDP.AC), 
+       width = 11, height = 8.5, dpi = 300)
+ggsave(file = "EDP acute lung stress separated.pdf", 
+       plot = ggplot(EDP.acute.lungstress.df, aes(`RM24hour.lung.stress$Timepoints`, value, colour = Samples)) + 
+         geom_line() + #theme(legend.position = "none") + 
+         facet_grid(Samples ~ .) + scale_colour_manual(values = colour.lung.EDP.AS) ,
+       width = 11, height = 8.5, dpi = 300)
+ggsave(file = "EDP chronic lung control separated.pdf", 
+       plot = ggplot(EDP.chronic.lung.df, aes(`RM24hour.lung.ctrl$Timepoints`, value, colour = Samples)) + 
+         geom_line() + #theme(legend.position = "none") + 
+         facet_grid(Samples ~ .) + scale_colour_manual(values = colour.lung.EDP.CC),
+       width = 11, height = 8.5, dpi = 300)
+ggsave(file = "EDP chronic lung stress separated.pdf", 
+       plot = ggplot(EDP.chronic.lungstress.df, aes(`RM24hour.lung.stress$Timepoints`, value, colour = Samples)) + 
+         geom_line() + #theme(legend.position = "none") + 
+         facet_grid(Samples ~ .) + scale_colour_manual(values = colour.lung.EDP.CS),
+       width = 11, height = 8.5, dpi = 300)
+
+ggsave(file = "EDP acute spleen control separated.pdf", 
+       plot = ggplot(EDP.acute.spleen.df, aes(`RM24hour.spleen.ctrl$Timepoints`, value, colour = Samples)) + 
+         geom_line() + #theme(legend.position = "none") + 
+         facet_grid(Samples ~ .) + scale_colour_manual(values = colour.spleen.EDP.AC), 
+       width = 11, height = 8.5, dpi = 300)
+ggsave(file = "EDP acute spleen stress separated.pdf", 
+       plot = ggplot(EDP.acute.spleenstress.df, aes(`RM24hour.spleen.stress$Timepoints`, value, colour = Samples)) + 
+         geom_line() + #theme(legend.position = "none") + 
+         facet_grid(Samples ~ .) + scale_colour_manual(values = colour.spleen.EDP.AS) ,
+       width = 11, height = 8.5, dpi = 300)
+ggsave(file = "EDP chronic spleen control separated.pdf", 
+       plot = ggplot(EDP.chronic.spleen.df, aes(`RM24hour.spleen.ctrl$Timepoints`, value, colour = Samples)) + 
+         geom_line() + #theme(legend.position = "none") + 
+         facet_grid(Samples ~ .) + scale_colour_manual(values = colour.spleen.EDP.CC),
+       width = 11, height = 8.5, dpi = 300)
+ggsave(file = "EDP chronic spleen stress separated.pdf", 
+       plot = ggplot(EDP.chronic.spleenstress.df, aes(`RM24hour.spleen.stress$Timepoints`, value, colour = Samples)) + 
+         geom_line() + #theme(legend.position = "none") + 
+         facet_grid(Samples ~ .) + scale_colour_manual(values = colour.spleen.EDP.CS),
+       width = 11, height = 8.5, dpi = 300)
+
+
+ggsave(file = "LDP acute kidneycortex control separated.pdf", 
+       plot = ggplot(LDP.acute.kidneycortex.df, aes(`RM24hour.kidneycrtx.ctrl$Timepoints`, value, colour = Samples)) + 
+         geom_line() + #theme(legend.position = "none") + 
+         facet_grid(Samples ~ .) + scale_colour_manual(values = colour.kidneycortex.LDP.AC), 
+       width = 11, height = 8.5, dpi = 300)
+ggsave(file = "LDP acute kidneycortex stress separated.pdf", 
+       plot = ggplot(LDP.acute.kidneycortexstress.df, aes(`RM24hour.kidneycrtx.stress$Timepoints`, value, colour = Samples)) + 
+         geom_line() + #theme(legend.position = "none") + 
+         facet_grid(Samples ~ .) + scale_colour_manual(values = colour.kidneycortex.LDP.AS) ,
+       width = 11, height = 8.5, dpi = 300)
+ggsave(file = "LDP chronic kidneycortex control separated.pdf", 
+       plot = ggplot(LDP.chronic.kidneycortex.df, aes(`RM24hour.kidneycrtx.ctrl$Timepoints`, value, colour = Samples)) + 
+         geom_line() + #theme(legend.position = "none") + 
+         facet_grid(Samples ~ .) + scale_colour_manual(values = colour.kidneycortex.LDP.CC),
+       width = 11, height = 8.5, dpi = 300)
+ggsave(file = "LDP chronic kidneycortex stress separated.pdf", 
+       plot = ggplot(LDP.chronic.kidneycortexstress.df, aes(`RM24hour.kidneycrtx.stress$Timepoints`, value, colour = Samples)) + 
+         geom_line() + #theme(legend.position = "none") + 
+         facet_grid(Samples ~ .) + scale_colour_manual(values = colour.kidneycortex.LDP.CS),
+       width = 11, height = 8.5, dpi = 300)
+
+ggsave(file = "LDP acute kidneymedulla control separated.pdf", 
+       plot = ggplot(LDP.acute.kidneymedulla.df, aes(`RM24hour.kidneymedu.ctrl$Timepoints`, value, colour = Samples)) + 
+         geom_line() + #theme(legend.position = "none") + 
+         facet_grid(Samples ~ .) + scale_colour_manual(values = colour.kidneymedulla.LDP.AC), 
+       width = 11, height = 8.5, dpi = 300)
+ggsave(file = "LDP acute kidneymedulla stress separated.pdf", 
+       plot = ggplot(LDP.acute.kidneymedullastress.df, aes(`RM24hour.kidneymedu.stress$Timepoints`, value, colour = Samples)) + 
+         geom_line() + #theme(legend.position = "none") + 
+         facet_grid(Samples ~ .) + scale_colour_manual(values = colour.kidneymedulla.LDP.AS) ,
+       width = 11, height = 8.5, dpi = 300)
+ggsave(file = "LDP chronic kidneymedulla control separated.pdf", 
+       plot = ggplot(LDP.chronic.kidneymedulla.df, aes(`RM24hour.kidneymedu.ctrl$Timepoints`, value, colour = Samples)) + 
+         geom_line() + #theme(legend.position = "none") + 
+         facet_grid(Samples ~ .) + scale_colour_manual(values = colour.kidneymedulla.LDP.CC),
+       width = 11, height = 8.5, dpi = 300)
+ggsave(file = "LDP chronic kidneymedulla stress separated.pdf", 
+       plot = ggplot(LDP.chronic.kidneymedullastress.df, aes(`RM24hour.kidneymedu.stress$Timepoints`, value, colour = Samples)) + 
+         geom_line() + #theme(legend.position = "none") + 
+         facet_grid(Samples ~ .) + scale_colour_manual(values = colour.kidneymedulla.LDP.CS),
+       width = 11, height = 8.5, dpi = 300)
+
+ggsave(file = "LDP acute lung control separated.pdf", 
+       plot = ggplot(LDP.acute.lung.df, aes(`RM24hour.lung.ctrl$Timepoints`, value, colour = Samples)) + 
+         geom_line() + #theme(legend.position = "none") + 
+         facet_grid(Samples ~ .) + scale_colour_manual(values = colour.lung.LDP.AC), 
+       width = 11, height = 8.5, dpi = 300)
+ggsave(file = "LDP acute lung stress separated.pdf", 
+       plot = ggplot(LDP.acute.lungstress.df, aes(`RM24hour.lung.stress$Timepoints`, value, colour = Samples)) + 
+         geom_line() + #theme(legend.position = "none") + 
+         facet_grid(Samples ~ .) + scale_colour_manual(values = colour.lung.LDP.AS) ,
+       width = 11, height = 8.5, dpi = 300)
+ggsave(file = "LDP chronic lung control separated.pdf", 
+       plot = ggplot(LDP.chronic.lung.df, aes(`RM24hour.lung.ctrl$Timepoints`, value, colour = Samples)) + 
+         geom_line() + #theme(legend.position = "none") + 
+         facet_grid(Samples ~ .) + scale_colour_manual(values = colour.lung.LDP.CC),
+       width = 11, height = 8.5, dpi = 300)
+ggsave(file = "LDP chronic lung stress separated.pdf", 
+       plot = ggplot(LDP.chronic.lungstress.df, aes(`RM24hour.lung.stress$Timepoints`, value, colour = Samples)) + 
+         geom_line() + #theme(legend.position = "none") + 
+         facet_grid(Samples ~ .) + scale_colour_manual(values = colour.lung.LDP.CS),
+       width = 11, height = 8.5, dpi = 300)
+
+ggsave(file = "LDP acute spleen control separated.pdf", 
+       plot = ggplot(LDP.acute.spleen.df, aes(`RM24hour.spleen.ctrl$Timepoints`, value, colour = Samples)) + 
+         geom_line() + #theme(legend.position = "none") + 
+         facet_grid(Samples ~ .) + scale_colour_manual(values = colour.spleen.LDP.AC), 
+       width = 11, height = 8.5, dpi = 300)
+ggsave(file = "LDP acute spleen stress separated.pdf", 
+       plot = ggplot(LDP.acute.spleenstress.df, aes(`RM24hour.spleen.stress$Timepoints`, value, colour = Samples)) + 
+         geom_line() + #theme(legend.position = "none") + 
+         facet_grid(Samples ~ .) + scale_colour_manual(values = colour.spleen.LDP.AS) ,
+       width = 11, height = 8.5, dpi = 300)
+ggsave(file = "LDP chronic spleen control separated.pdf", 
+       plot = ggplot(LDP.chronic.spleen.df, aes(`RM24hour.spleen.ctrl$Timepoints`, value, colour = Samples)) + 
+         geom_line() + #theme(legend.position = "none") + 
+         facet_grid(Samples ~ .) + scale_colour_manual(values = colour.spleen.LDP.CC),
+       width = 11, height = 8.5, dpi = 300)
+ggsave(file = "LDP chronic spleen stress separated.pdf", 
+       plot = ggplot(LDP.chronic.spleenstress.df, aes(`RM24hour.spleen.stress$Timepoints`, value, colour = Samples)) + 
+         geom_line() + #theme(legend.position = "none") + 
+         facet_grid(Samples ~ .) + scale_colour_manual(values = colour.spleen.LDP.CS),
+       width = 11, height = 8.5, dpi = 300)
+
+ 
+```
